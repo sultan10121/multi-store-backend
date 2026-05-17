@@ -36,11 +36,16 @@ mongoose.connect(process.env.DATABASE).then(()=>{
  console.log('mongodb connected');
 });
 
-//start the server and listen on the specified port 
-app.listen(PORT,"0.0.0.0", function(){
-    console.log(`server is running on port ${PORT}`);
-    console.log(`Local:   http://localhost:${PORT}`);
-    if (process.env.HOST) {
-        console.log(`Network: http://${process.env.HOST}:${PORT}`);
-    }
-} );
+// Export app for Vercel
+module.exports = app;
+
+// Only listen on local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT,"0.0.0.0", function(){
+      console.log(`server is running on port ${PORT}`);
+      console.log(`Local:   http://localhost:${PORT}`);
+      if (process.env.HOST) {
+          console.log(`Network: http://${process.env.HOST}:${PORT}`);
+      }
+  } );
+}
