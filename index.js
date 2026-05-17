@@ -22,6 +22,12 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());///enable cors for all routes and origin
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'Backend is running', dbConnected: mongoose.connection.readyState === 1 });
+});
+
 app.use(authRouter);
 app.use(bannerRouter);
 app.use(categoryRouter);
@@ -34,6 +40,9 @@ app.use(orderRouter);
 
 mongoose.connect(process.env.DATABASE).then(()=>{
  console.log('mongodb connected');
+}).catch((err) => {
+ console.error('MongoDB connection error:', err.message);
+ console.error('DATABASE URL:', process.env.DATABASE ? 'Set' : 'Not set');
 });
 
 // Export app for Vercel
