@@ -4,15 +4,19 @@ const {SESClient, SendEmailCommand} = require('@aws-sdk/client-ses');
 ///Load the enviroment variables from the .env file
 require('dotenv').config();
 
-//initialize SES client using the enviroment variables
+//initialize SES client using the enviroment variables - only if credentials are available
 
-const client = new SESClient({
-   region:process.env.AWS_REGION,
-   credentials:{
-    accessKeyId:process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey:process.env.AWS_SECRET_ACCESS_KEY,
-   }
-});
+let client = null;
+
+if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && process.env.AWS_REGION) {
+  client = new SESClient({
+     region: process.env.AWS_REGION,
+     credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+     }
+  });
+}
 
 //Function to generate simple HTML content for welcome email
 
@@ -65,7 +69,7 @@ const sendOtpEmail = async(email, otp)=>{
  const command = new SendEmailCommand(params);
 
  try {
-    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !client) {
         console.log(`[DEV] Email not configured — OTP for ${email}: ${otp}`);
         return null;
     }
